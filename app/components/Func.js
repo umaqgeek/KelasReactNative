@@ -9,16 +9,31 @@ const darab = (num1, num2) => {
 
 const tarikData = (name, data, type) => {
   const BASE_URL = 'https://kelasreactnative.firebaseio.com/';
+
+  // add data
   if(type == 'POST') {
     fetch(BASE_URL + name + '.json', {
+      method: 'POST',
       body: JSON.stringify(data)
     })
-    .done(res => res.json())
-    .done(res => {
-      alert(res);
+    .then(res => res.json())
+    .then(res => {
+      alert('Add success');
     })
     .catch(err => {
-      alert(err);
+      alert('Add error: '+err);
+    });
+  }
+
+  // get all data
+  if(type == 'GET') {
+    fetch(BASE_URL + name + '.json')
+    .then(res => res.json())
+    .then(res => {
+      alert(JSON.stringify(Object.entries(res)));
+    })
+    .catch(err => {
+      alert('Add error: '+err);
     });
   }
 };

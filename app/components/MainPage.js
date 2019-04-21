@@ -7,6 +7,10 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
+import {
+  tarikData
+} from './Func';
+
 class MainPage extends Component {
 
   constructor(props) {
@@ -14,6 +18,7 @@ class MainPage extends Component {
     this.terima = this.terima.bind(this);
     this.hantar = this.hantar.bind(this);
     this.klear = this.klear.bind(this);
+    this.paparSemua = this.paparSemua.bind(this);
   };
 
   state = {
@@ -21,6 +26,10 @@ class MainPage extends Component {
       nama: '',
       ic: '',
     }
+  };
+
+  paparSemua = () => {
+    tarikData('pesakit', {}, 'GET');
   };
 
   klear = () => {
@@ -45,7 +54,8 @@ class MainPage extends Component {
   };
 
   hantar = () => {
-    
+    tarikData('pesakit', this.state.data, 'POST');
+    this.klear();
   };
 
   render() {
@@ -79,6 +89,12 @@ class MainPage extends Component {
         <TouchableOpacity onPress={this.klear}>
           <View style={styles.butang}>
             <Text>Clear</Text>
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={this.paparSemua}>
+          <View style={styles.butang}>
+            <Text>View All Data</Text>
           </View>
         </TouchableOpacity>
 
