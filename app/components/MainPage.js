@@ -5,6 +5,8 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
+  ScrollView,
+  FlatList,
 } from 'react-native';
 
 import {
@@ -25,11 +27,35 @@ class MainPage extends Component {
     data: {
       nama: '',
       ic: '',
+      listPesakit: [],
     }
   };
 
   paparSemua = () => {
-    tarikData('pesakit', {}, 'GET');
+    var self = this;
+    tarikData('pesakit', 'GET', {}, function(res) {
+      console.log(res);
+      var pesakits = [];
+      if (res) {
+        for (var key in res) {
+          pesakits.push(res[key]);
+        }
+      }
+      console.log(pesakits);
+      self.setState(prevState => {
+        return {
+          ...prevState,
+          data: {
+            ...prevState.data,
+            listPesakit: Object.assign([], pesakits),
+          }
+        };
+      });
+      console.log('oi!');
+      // console.log(self.state.data);
+    }, function(err) {
+      console.log(err);
+    });
   };
 
   klear = () => {
@@ -54,21 +80,24 @@ class MainPage extends Component {
   };
 
   hantar = () => {
-    tarikData('pesakit', this.state.data, 'POST');
+    tarikData('pesakit', 'POST', this.state.data, function(res) {
+      alert('Success add!');
+    }, function(err) {
+    });
     this.klear();
   };
 
   render() {
     return (
-      <View>
+      <ScrollView>
 
         <View style={styles.kepala}>
-          <Text style={styles.kepalaText}>Main Page</Text>
+          <Text FlatListstyle={styles.kepalaText}>Main Page</Text>
         </View>
 
         <TextInput
           style={styles.kotak}
-          placeholder="Enter your name here"
+          placeholder="Enter your name here"listPesakit
           onChangeText={(val) => this.terima(val, 'nama')}
           value={this.state.data.nama}
         />
@@ -98,7 +127,20 @@ class MainPage extends Component {
           </View>
         </TouchableOpacity>
 
-      </View>
+        <View>
+          <Text>{JSON.stringify(this.state.data.listPesakit)}</Text>
+        </View>
+
+        <FlatList
+          data={this.state.data.listPesakit}
+          renderItem={({item}) => (
+            <View>
+              <Text>Name: {JSON.stringify(item)}</Text>
+            </View>
+          )}
+        />
+
+      </ScrollView>
     );
   };
 };
