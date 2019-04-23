@@ -54,7 +54,6 @@ class MainPage extends Component {
           }
         };
       });
-      // console.log(self.state.data);
     }, function(err) {
       alert('Error! '+JSON.stringify(err));
     });
