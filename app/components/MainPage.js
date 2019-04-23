@@ -31,17 +31,20 @@ class MainPage extends Component {
     }
   };
 
+  componentWillMount() {
+    this.paparSemua();
+  };
+
   paparSemua = () => {
     var self = this;
     tarikData('pesakit', 'GET', {}, function(res) {
-      console.log(res);
       var pesakits = [];
       if (res) {
         for (var key in res) {
+          res[key].key = key;
           pesakits.push(res[key]);
         }
       }
-      console.log(pesakits);
       self.setState(prevState => {
         return {
           ...prevState,
@@ -51,19 +54,22 @@ class MainPage extends Component {
           }
         };
       });
-      console.log('oi!');
       // console.log(self.state.data);
     }, function(err) {
-      console.log(err);
+      alert('Error! '+JSON.stringify(err));
     });
   };
 
   klear = () => {
-    this.setState({
-      data: {
-        nama: '',
-        ic: '',
-      }
+    this.setState(prevState => {
+      return {
+        ...prevState,
+        data: {
+          ...prevState.data,
+          nama: '',
+          ic: '',
+        }
+      };
     });
   };
 
@@ -80,11 +86,20 @@ class MainPage extends Component {
   };
 
   hantar = () => {
-    tarikData('pesakit', 'POST', this.state.data, function(res) {
-      alert('Success add!');
-    }, function(err) {
-    });
-    this.klear();
+    if (this.state.data.ic.length > 0 && this.state.data.nama.length > 0) {
+      tarikData('pesakit', 'POST', {
+        ic: this.state.data.ic,
+        nama: this.state.data.nama,
+      }, function(res) {
+        alert('Success add!');
+      }, function(err) {
+        alert('Error! '+JSON.stringify(err));
+      });
+      this.klear();
+    } else {
+      alert('Do not leave blank!');
+    }
+    this.paparSemua();
   };
 
   render() {
@@ -109,6 +124,7 @@ class MainPage extends Component {
           value={this.state.data.ic}
         />
 
+      <View style={styles.listButang}>
         <TouchableOpacity onPress={this.hantar}>
           <View style={styles.butang}>
             <Text>Submit</Text>
@@ -126,19 +142,19 @@ class MainPage extends Component {
             <Text>View All Data</Text>
           </View>
         </TouchableOpacity>
+      </View>
 
         <View>
-          <Text>{JSON.stringify(this.state.data.listPesakit)}</Text>
+          <FlatList
+            data={this.state.data.listPesakit}
+            renderItem={({item}) => (
+              <View id={item.key} style={styles.datalist}>
+                <Text>Name: {item.nama}</Text>
+                <Text>I/C No.: {item.ic}</Text>
+              </View>
+            )}
+          />
         </View>
-
-        <FlatList
-          data={this.state.data.listPesakit}
-          renderItem={({item}) => (
-            <View>
-              <Text>Name: {JSON.stringify(item)}</Text>
-            </View>
-          )}
-        />
 
       </ScrollView>
     );
@@ -148,6 +164,18 @@ class MainPage extends Component {
 export default MainPage;
 
 const styles = StyleSheet.create({
+  listButang: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  datalist: {
+    marginTop: 10,
+    marginLeft: 20,
+    marginRight: 20,
+    backgroundColor: "rgba(0, 0, 0, 0.1)",
+    padding: 15,
+    borderRadius: 10,
+  },
   kepalaText: {
     fontSize: 20,
     margin: 20,
@@ -166,11 +194,12 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   butang: {
-    margin: 20,
+    margin: 10,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
     height: 50,
+    width: 300,
     borderRadius: 50,
     backgroundColor: "rgba(0, 0, 255, 0.1)",
     borderColor: "rgba(0, 0, 0, 0.5)",
